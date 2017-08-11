@@ -1,25 +1,18 @@
+#!/usr/bin/env node
 const async = require('async');
 const AWS = require('aws-sdk');
 
+var program = require('commander');
 
-function terminateEcsInstances(clustername) {
-	console.log('param',clustername)
-	CLUSTER_NAME=clustername
+program.option('-c, --cluster <cluster>', 'terminate cluster')
+	.parse(process.argv); 
+	console.log(program.cluster)
+
+
 	
-	async.waterfall([
-		//async.constant(clustername),
-		getEcsInstances,
-		getContainerArn,
-		getContainerIds,
-		killEcsInstances
-	], (err, data) => {
-		if (err) {
-			console.log('Error', err)
-		} else {
-			console.log('Data', data)
-		}
-	})
-}
+CLUSTER_NAME=program.cluster
+	
+	
 
 const ecsParams = {
 	apiVersion: '2014-11-13',
@@ -38,10 +31,12 @@ const getEcsInstances = (callback) => {
 	var params = {
 		cluster: CLUSTER_NAME
 	};
+	
 	ecs.listContainerInstances(params, (err, data) => {
 		if (err) {
 			callback(err)
 		} else {
+			console.log('listContainerInstances data:',data)
 			callback(null, data)
 		}
 	})
@@ -94,5 +89,18 @@ const killEcsInstances = (arg3, callback) => {
 }
 
 
-module.exports = terminateEcsInstances
+async.waterfall([
+		getEcsInstances,
+		getContainerArn,
+		getContainerIds,
+		killEcsInstances
+	], (err, data) => {
+		if (err) {
+			console.log('Error', err)
+		} else {
+			console.log('Data', data)
+		}
+	})
+
+
 

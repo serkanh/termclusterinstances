@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {
-    "cd-helper": "cd.js"
+    "cd-helper": "cd-helper.js"
   },
   "author": "",
   "license": "ISC",
