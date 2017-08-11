@@ -1,2 +1,4 @@
 `cd termclusterinstances && npm link`
-`cd-helper cluster terminate -c caranddriverapp-bakery`
+
+
+`cd-helper terminate cluster -c caranddriverapp-bakery`
