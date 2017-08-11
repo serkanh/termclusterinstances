@@ -2,24 +2,41 @@ const async = require('async');
 const AWS = require('aws-sdk');
 
 
-var ecs = new AWS.ECS({
-	apiVersion: '2014-11-13',
-	region: 'us-east-1'
-});
+function terminateEcsInstances(clustername) {
+	console.log('param',clustername)
+	CLUSTER_NAME=clustername
+	
+	async.waterfall([
+		//async.constant(clustername),
+		getEcsInstances,
+		getContainerArn,
+		getContainerIds,
+		killEcsInstances
+	], (err, data) => {
+		if (err) {
+			console.log('Error', err)
+		} else {
+			console.log('Data', data)
+		}
+	})
+}
 
-var ec2 = new AWS.EC2({
+const ecsParams = {
 	apiVersion: '2014-11-13',
 	region: 'us-east-1'
-});
+}
+
+const ecs = new AWS.ECS(ecsParams);
+const ec2 = new AWS.EC2(ecsParams);
 
 //TODO 
 // Get the clustername from the stdin
 
 
 // Get ec2 instances
-let getEcsInstances = (callback) => {
+const getEcsInstances = (callback) => {
 	var params = {
-		cluster: "caranddriverapp-bakery"
+		cluster: CLUSTER_NAME
 	};
 	ecs.listContainerInstances(params, (err, data) => {
 		if (err) {
@@ -31,22 +48,23 @@ let getEcsInstances = (callback) => {
 }
 
 // Gets the container instance arn
-let getContainerArn = (arg1, callback) => {
+const getContainerArn = (arg1, callback) => {
 	console.log(arg1.containerInstanceArns)
+
 	let instanceArr = arg1.containerInstanceArns;
-	let instanceIds = instanceArr.map(function (element) {
+	let instanceIds = instanceArr.map(element => {
 		return element
 			.toString()
 			.split('/')[1]
 	});
-	console.log('instanceIds:', instanceIds instanceof Array)
+	console.log('instanceIds:', instanceIds)
 	callback(null, instanceIds)
 }
 
 //Get container instance-id
-let getContainerIds = (arg2, callback) => {
+const getContainerIds = (arg2, callback) => {
 	var params = {
-		cluster: "caranddriverapp-bakery",
+		cluster: CLUSTER_NAME,
 		containerInstances: arg2
 	}
 	ecs.describeContainerInstances(params, (err, data) => {
@@ -64,7 +82,7 @@ let getContainerIds = (arg2, callback) => {
 }
 
 // Terminate ec2 instances
-let killEcsInstances = (arg3, callback) => {
+const killEcsInstances = (arg3, callback) => {
 	var params = {
 		InstanceIds: arg3,
 		DryRun: false
@@ -75,15 +93,6 @@ let killEcsInstances = (arg3, callback) => {
 	})
 }
 
-async.waterfall([
-	getEcsInstances,
-	getContainerArn,
-	getContainerIds,
-	killEcsInstances
-], (err, data) => {
-	if (err) {
-		console.log(err)
-	} else {
-		console.log('Data', data)
-	}
-})
+
+module.exports = terminateEcsInstances
+

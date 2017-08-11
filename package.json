@@ -6,10 +6,14 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "bin": {
+    "cd-helper": "cd.js"
+  },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "async": "^2.5.0",
-    "aws-sdk": "^2.95.0"
+    "aws-sdk": "^2.95.0",
+    "commander": "^2.11.0"
   }
 }
