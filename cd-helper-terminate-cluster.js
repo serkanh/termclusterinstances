@@ -1,6 +1,11 @@
 #!/usr/bin/env node
 const async = require('async');
-const AWS = require('aws-sdk');
+const AWS = require('aws-sdk')
+
+//Default profile set to HA
+AWS
+	.config
+	.credentials =  new AWS.SharedIniFileCredentials({profile: 'HA'}); 
 
 var program = require('commander');
 
@@ -11,7 +16,6 @@ program.option('-c, --cluster <cluster>', 'terminate cluster')
 
 	
 CLUSTER_NAME=program.cluster
-	
 	
 
 const ecsParams = {
